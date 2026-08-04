@@ -8,7 +8,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 export async function getTransactions(filters = {}) {
   let query = supabase
     .from('transactions')
-    .select('*, tags(name, color)')
+    .select('*')
     .order('date', { ascending: false });
 
   if (filters.startDate) {
@@ -24,11 +24,7 @@ export async function getTransactions(filters = {}) {
   const { data, error } = await query;
   if (error) throw error;
 
-  return data.map(t => ({
-    ...t,
-    tag_name: t.tags?.name,
-    tag_color: t.tags?.color
-  }));
+  return data;
 }
 
 export async function getTags() {
