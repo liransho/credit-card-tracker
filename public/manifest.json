@@ -1,0 +1,17 @@
+{
+  "name": "Credit Card Tracker",
+  "short_name": "CC Tracker",
+  "description": "Track your credit card transactions",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1976d2",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

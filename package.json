@@ -1,0 +1,58 @@
+{
+  "name": "credit-card-tracker",
+  "version": "1.0.0",
+  "description": "Israeli Credit Card Aggregation App - Track spending from Max, Cal, and Isracard",
+  "main": "src/main/main.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "build": "vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "credit-card",
+    "finance",
+    "israel",
+    "budgeting"
+  ],
+  "author": "Liran Shoshana",
+  "license": "MIT",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.3",
+    "concurrently": "^10.0.3",
+    "electron": "^43.1.1",
+    "electron-builder": "^26.15.7",
+    "vite": "^8.1.5",
+    "wait-on": "^9.0.10"
+  },
+  "dependencies": {
+    "israeli-bank-scrapers": "^6.8.0",
+    "node-cron": "^4.6.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.1",
+    "recharts": "^3.9.2",
+    "sql.js": "^1.14.1"
+  },
+  "build": {
+    "appId": "com.creditcard.tracker",
+    "productName": "Credit Card Tracker",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "src/main/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}
