@@ -7,7 +7,10 @@ export default defineConfig({
   base: './',
   build: {
     outDir: 'dist',
-    emptyOutDir: true
+    emptyOutDir: true,
+    rollupOptions: {
+      external: ['electron', 'israeli-bank-scrapers', 'sql.js', 'node-cron']
+    }
   },
   resolve: {
     alias: {
