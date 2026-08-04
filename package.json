@@ -31,6 +31,7 @@
     "node-cron": "^4.6.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-is": "^19.2.7",
     "react-router-dom": "^7.18.1",
     "recharts": "^3.9.2",
     "sql.js": "^1.14.1"
