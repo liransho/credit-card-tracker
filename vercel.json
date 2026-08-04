@@ -1,0 +1,4 @@
+{
+  "installCommand": "npm install --omit=dev --ignore-scripts",
+  "buildCommand": "npm install vite @vitejs/plugin-react && npm run build"
+}
