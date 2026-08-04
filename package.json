@@ -4,10 +4,10 @@
   "description": "Israeli Credit Card Aggregation App - Track spending from Max, Cal, and Isracard",
   "main": "src/main/main.js",
   "scripts": {
-    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
-    "dev:vite": "vite",
-    "dev:electron": "wait-on http://localhost:5173 && electron .",
-    "build": "vite build && electron-builder",
+    "dev": "vite",
+    "dev:electron": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "build": "vite build",
+    "build:electron": "vite build && electron-builder",
     "preview": "vite preview"
   },
   "keywords": [
