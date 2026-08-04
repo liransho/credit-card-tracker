@@ -21,6 +21,7 @@ function Settings() {
   const [tagRules, setTagRules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [showRuleModal, setShowRuleModal] = useState(false);
   const [newRule, setNewRule] = useState({
     name: '',
@@ -131,6 +132,20 @@ function Settings() {
   const formatDate = (dateStr) => {
     if (!dateStr) return '-';
     return new Date(dateStr).toLocaleString('he-IL');
+  };
+
+  const handleSyncToCloud = async () => {
+    setSyncing(true);
+    try {
+      if (window.electronAPI) {
+        const result = await window.electronAPI.supabase.syncAll();
+        alert(`סונכרנו ${result.syncedCount} עסקאות לענן`);
+      }
+    } catch (error) {
+      console.error('Failed to sync:', error);
+      alert('שגיאה בסנכרון: ' + error.message);
+    }
+    setSyncing(false);
   };
 
   if (loading) {
@@ -295,6 +310,21 @@ function Settings() {
           disabled={saving}
         >
           {saving ? 'שומר...' : 'שמור הגדרות'}
+        </button>
+      </div>
+
+      {/* Cloud Sync */}
+      <div className="card">
+        <h2 className="card-title" style={{ marginBottom: '20px' }}>סנכרון לענן</h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
+          סנכרן את כל העסקאות לענן כדי לראות אותן באפליקציית האייפון
+        </p>
+        <button
+          className="btn btn-primary"
+          onClick={handleSyncToCloud}
+          disabled={syncing}
+        >
+          {syncing ? 'מסנכרן...' : 'סנכרן עכשיו'}
         </button>
       </div>
 

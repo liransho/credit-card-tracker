@@ -83,6 +83,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     apply: () => ipcRenderer.invoke('tagRules:apply')
   },
 
+  // Supabase sync
+  supabase: {
+    syncAll: () => ipcRenderer.invoke('supabase:syncAll')
+  },
+
   // Notifications
   onNotification: (callback) => {
     ipcRenderer.on('notification', (event, data) => callback(data));

@@ -3,6 +3,7 @@ const path = require('path');
 const Database = require('./database');
 const Scraper = require('./scraper');
 const Scheduler = require('./scheduler');
+const { syncTransactionsToSupabase, syncAllFromDatabase } = require('./supabaseSync');
 
 let mainWindow;
 let db;
@@ -161,6 +162,14 @@ ipcMain.handle('scraper:run', async (event, accountId) => {
     console.log('Saved to DB, new count:', newCount);
     db.updateLastScrape(accountId);
 
+    // Sync to Supabase
+    try {
+      await syncTransactionsToSupabase(transactions, account.name);
+      console.log('Synced to Supabase');
+    } catch (syncError) {
+      console.error('Supabase sync error:', syncError);
+    }
+
     mainWindow.webContents.send('scraper:status', { accountId, status: 'completed', newCount });
 
     // Check alerts for new transactions
@@ -305,4 +314,10 @@ ipcMain.handle('tagRules:apply', async () => {
 ipcMain.handle('transactions:bulkUpdateTag', async (event, { transactionIds, tagId }) => {
   const count = db.bulkUpdateTag(transactionIds, tagId);
   return { success: true, updatedCount: count };
+});
+
+// Supabase sync
+ipcMain.handle('supabase:syncAll', async () => {
+  const count = await syncAllFromDatabase(db);
+  return { success: true, syncedCount: count };
 });

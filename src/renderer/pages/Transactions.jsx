@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { getTransactions, getTags, bulkUpdateTag as supabaseBulkUpdateTag } from '../supabase';
 
 function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -34,16 +35,14 @@ function Transactions() {
         setCategories(catData);
         setTags(tagData);
       } else {
-        // Demo data
-        setTransactions([
-          { id: 1, date: '2026-07-19', description: 'סופר יודה', amount: -245.90, original_category: 'מזון', account_name: 'Max', category_color: '#EF4444' },
-          { id: 2, date: '2026-07-18', description: 'דלק פז', amount: -320.00, original_category: 'תחבורה', account_name: 'Cal', category_color: '#3B82F6' },
+        // Use Supabase for web/PWA
+        const [txnData, tagData] = await Promise.all([
+          getTransactions(filters),
+          getTags()
         ]);
+        setTransactions(txnData);
         setCategories([]);
-        setTags([
-          { id: 1, name: 'אישי', color: '#3B82F6' },
-          { id: 2, name: 'בית', color: '#10B981' },
-        ]);
+        setTags(tagData);
       }
     } catch (error) {
       console.error('Failed to load transactions:', error);
@@ -100,6 +99,11 @@ function Transactions() {
           bulkTagId === 'none' ? null : parseInt(bulkTagId)
         );
         console.log('Bulk tag result:', result);
+      } else {
+        await supabaseBulkUpdateTag(
+          Array.from(selectedRows),
+          bulkTagId === 'none' ? null : parseInt(bulkTagId)
+        );
       }
       setSelectedRows(new Set());
       setBulkTagId('');
