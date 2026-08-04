@@ -1,5 +1,8 @@
 const { createClient } = require('@supabase/supabase-js');
 
+// Disable SSL verification for corporate proxy
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 const supabaseUrl = 'https://acwjoujhommwwmabtlbe.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjd2pvdWpob21td3dtYWJ0bGJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4MzM3MTksImV4cCI6MjEwMTQwOTcxOX0.cBVKexLMOTXgVbaYltusQgeAkweBg01vDxlYC9OW_jQ';
 
