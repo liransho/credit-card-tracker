@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { getTransactions } from '../supabase';
 
 const CATEGORY_COLORS = [
   '#EF4444', // red
@@ -35,37 +36,66 @@ function Dashboard() {
         setStats(statsData);
         setRecentTransactions(transactionsData);
       } else {
-        // Demo data for development without Electron
-        setStats({
-          totalSpending: 15420.50,
-          byCategory: [
-            { category: 'מזון', color: '#EF4444', total: 4500 },
-            { category: 'קניות', color: '#F59E0B', total: 3200 },
-            { category: 'תחבורה', color: '#3B82F6', total: 2800 },
-            { category: 'בילויים', color: '#8B5CF6', total: 2100 },
-            { category: 'חשבונות', color: '#10B981', total: 1800 },
-            { category: 'אחר', color: '#6B7280', total: 1020.50 }
-          ],
-          byAccount: [
-            { account: 'Max', type: 'max', total: 8500 },
-            { account: 'Cal', type: 'cal', total: 4200 },
-            { account: 'Isracard', type: 'isracard', total: 2720.50 }
-          ],
-          dailySpending: [
-            { date: '2026-07-01', total: 450 },
-            { date: '2026-07-02', total: 320 },
-            { date: '2026-07-03', total: 680 },
-            { date: '2026-07-04', total: 220 },
-            { date: '2026-07-05', total: 890 },
-            { date: '2026-07-06', total: 150 },
-            { date: '2026-07-07', total: 420 }
-          ]
+        // Use Supabase for web/PWA
+        const transactions = await getTransactions({});
+
+        // Calculate stats from transactions
+        const now = new Date();
+        let startDate;
+        switch (period) {
+          case 'week':
+            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case 'month':
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            break;
+          case 'year':
+            startDate = new Date(now.getFullYear(), 0, 1);
+            break;
+          default:
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        }
+
+        const filtered = transactions.filter(t => new Date(t.date) >= startDate);
+        const expenses = filtered.filter(t => t.amount < 0);
+
+        // Group by category
+        const categoryMap = {};
+        expenses.forEach(t => {
+          const cat = t.original_category || 'אחר';
+          if (!categoryMap[cat]) categoryMap[cat] = { category: cat, total: 0, count: 0 };
+          categoryMap[cat].total += Math.abs(t.amount);
+          categoryMap[cat].count++;
         });
-        setRecentTransactions([
-          { id: 1, date: '2026-07-19', description: 'סופר יודה', amount: -245.90, category_name: 'מזון', account_name: 'Max' },
-          { id: 2, date: '2026-07-18', description: 'דלק פז', amount: -320.00, category_name: 'תחבורה', account_name: 'Cal' },
-          { id: 3, date: '2026-07-17', description: 'Amazon', amount: -189.00, category_name: 'קניות', account_name: 'Isracard' }
-        ]);
+        const byCategory = Object.values(categoryMap).sort((a, b) => b.total - a.total);
+
+        // Group by card
+        const cardMap = {};
+        expenses.forEach(t => {
+          const card = t.card_number || 'unknown';
+          if (!cardMap[card]) cardMap[card] = { card, total: 0, count: 0 };
+          cardMap[card].total += Math.abs(t.amount);
+          cardMap[card].count++;
+        });
+        const byCard = Object.values(cardMap).sort((a, b) => b.total - a.total);
+
+        // Daily spending
+        const dailyMap = {};
+        expenses.forEach(t => {
+          if (!dailyMap[t.date]) dailyMap[t.date] = 0;
+          dailyMap[t.date] += Math.abs(t.amount);
+        });
+        const dailySpending = Object.entries(dailyMap)
+          .map(([date, total]) => ({ date, total }))
+          .sort((a, b) => a.date.localeCompare(b.date));
+
+        setStats({
+          totalSpending: expenses.reduce((sum, t) => sum + Math.abs(t.amount), 0),
+          byCategory,
+          byCard,
+          dailySpending
+        });
+        setRecentTransactions(transactions.slice(0, 10));
       }
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
